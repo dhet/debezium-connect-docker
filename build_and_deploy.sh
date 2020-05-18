@@ -9,5 +9,6 @@ fi
 
 sed -e "s/{{tag}}/${tag}/g" docker/Dockerfile.template > docker/Dockerfile
 
-docker build -t $image_name:$1 docker
+docker build -t $image_name:$1 -t $image_name:latest docker
 docker push $image_name:$1
+docker push $image_name:latest
