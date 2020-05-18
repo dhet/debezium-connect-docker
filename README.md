@@ -3,6 +3,8 @@ An alternative Docker image for [Debezium](https://debezium.io/) that is more in
 
 The image is entirely configurable via **environment variables**; It removes the need to use the connector's REST API for configuration. 
 
+[View on Docker Hub](https://hub.docker.com/r/dhet/debezium-connect)
+
 ## Example
 An example can be found in the "example" folder. Running `docker-compose up` in that directory will spin up
 * a single-broker Kafka setup, including Zookeeper
