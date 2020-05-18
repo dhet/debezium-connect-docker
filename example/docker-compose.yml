@@ -1,0 +1,74 @@
+version: '2.1'
+services:
+
+  debezium:
+    build: ../docker
+    hostname: connect
+    container_name: connect
+    depends_on:
+      - kafka
+      - database
+    ports:
+      - 8083:8083
+    links:
+      - kafka
+    environment:
+      BOOTSTRAP_SERVERS: kafka:29092
+      CONFIG_STORAGE_TOPIC: debezium-config
+      OFFSET_STORAGE_TOPIC: debezium-offset
+      STATUS_STORAGE_TOPIC: debezium-status
+      DEBEZIUM_CONFIG_CONNECTOR_CLASS: io.debezium.connector.postgresql.PostgresConnector
+      DEBEZIUM_CONFIG_DATABASE_HOSTNAME: database
+      DEBEZIUM_CONFIG_DATABASE_PORT: 5432
+      DEBEZIUM_CONFIG_DATABASE_PASSWORD: postgres
+      DEBEZIUM_CONFIG_DATABASE_USER: postgres
+      DEBEZIUM_CONFIG_DATABASE_SERVER_NAME: postgres
+      DEBEZIUM_CONFIG_DATABASE_DBNAME: postgres
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.3.1
+    hostname: zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+
+  kafka:
+    image: wurstmeister/kafka:2.12-2.4.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://:29092,PLAINTEXT_HOST://:9092
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_MESSAGE_MAX_BYTES: 20000000
+      KAFKA_MAX_MESSAGE_BYTES: 20000000
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 20000000
+    ports:
+      - 29092:29092
+      - 9092:9092
+
+  database:
+    image: debezium/postgres:10
+    hostname: database
+    container_name: database
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+
+
+
