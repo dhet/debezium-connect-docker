@@ -5,4 +5,4 @@ ENV ENV_PREFIX=DEBEZIUM_CONFIG_
 
 COPY include /setup
 
-CMD /setup/entrypoint.sh
+CMD /setup/initialize.sh

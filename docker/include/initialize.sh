@@ -1,21 +1,28 @@
 #!/usr/bin/env bash
 
-echo "===> Building Debezium config from env vars ..."
-python /setup/build_config.py
+initialize() {
+  echo "===> Building connector config from env vars ..."
+  python /setup/build_config.py
 
-echo "===> Config:
-$(cat debezium_config.json)"
+  echo "===> Config:"
+  sed -e 's/\(.*password.*"\).*\("\)/\1*****\2/g' connector_config.json
 
-echo "===> Waiting for connector to start ..."
-sleep 30
+  success=1
+  while [ "$success" != "0" ]
+  do
+    sleep 5
+    echo "===> Trying to PUT connector config ..."
+    curl -X PUT -fsS -o /dev/null \
+      -H "Accept:application/json" \
+      -H "Content-Type:application/json" \
+      -d @connector_config.json \
+      "http://${CONNECT_REST_ADVERTISED_HOST_NAME}:${CONNECT_REST_PORT}/connectors/${CONNECTOR_NAME}/config"
 
-echo "===> Posting Debezium config to the connector ..."
+    success=$?
+  done
+  echo "===> Successfully configured connector ..."
+}
 
-curl -X PUT -sS \
-  -H "Accept:application/json" \
-  -H "Content-Type:application/json" \
-  -d @debezium_config.json \
-  --retry 100 --retry-delay 10 --retry-max-time 60 \
-  "http://${CONNECT_REST_ADVERTISED_HOST_NAME}:${CONNECT_REST_PORT}/connectors/${CONNECTOR_NAME}/config"
+initialize & 
 
-echo "===> Successfully configured Debezium connector ..."
+exec /docker-entrypoint.sh "start"
