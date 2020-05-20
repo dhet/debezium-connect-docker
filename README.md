@@ -12,7 +12,7 @@ An example can be found in the "example" folder. Running `docker-compose up` in 
 * a Debezium connector that monitors the database and publishes changes to Kafka
 
 ## Configuration
-This image is built on top of the official [Debezium connect image](https://hub.docker.com/r/debezium/connect). As such, it supports all environment variables listed in the documentation, such as 
+This image adds a thin layer on top of the official [Debezium connect image](https://hub.docker.com/r/debezium/connect). As such, it supports all environment variables listed in the documentation, such as 
 
 * `CONFIG_STORAGE_TOPIC` 
 * `BOOTSTRAP_SERVERS`
@@ -39,7 +39,9 @@ Example:
 Additionally, the connector's name can be specified via `CONNECTOR_NAME` env var (the default connector name is "debezium")
 
 ## How it works
-Debezium by its own is not immutable. It stores its configuration in a log-compacted Kafka topic. Configuration is done via Kafka Connect's REST API. When the container starts it automatically sets up Debezium by sending a PUT to the API. This is an idempotent operation: the first request will set up a new connector, and all subsequent requests will overwrite the configuration. As a result, starting the container several times with the same configuration will always have the same effect.
+Setting up a Kafka connector involves sending an HTTP request to the connector's REST API which is often done as a manual step. The API takes the config and stores it in a log-compacted Kafka topic. Connectors are therefore inherently stateful and their deployment is a pain to automate.
+
+This image tries to alleviate this by making the connector configurable through environment variables. When the container starts it builds a config file from the specified environment variables and PUTs it to the API. This is an idempotent operation: the first request will set up a new connector, and all subsequent requests will overwrite the configuration. As a result, starting the container several times with the same configuration will always have the same effect.
 
 > ⚠️ The image is not capable of deleting existing configurations so a manual cleanup via [HTTP DELETE](https://docs.confluent.io/current/connect/references/restapi.html#delete--connectors-(string-name)-) is necessary in case Debezium is not needed anymore. 
 
