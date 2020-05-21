@@ -1,7 +1,6 @@
 # Debezium Connect Docker Image
-An alternative Docker image for [Debezium](https://debezium.io/) that is more in line with the idea of immutable infrastructures.
 
-The image is entirely configurable via **environment variables**; It removes the need to use the connector's REST API for configuration. 
+A Debezium Docker Image that is entirely configurable via **environment variables**; It removes the need to manually POST connector configs to Connect's REST API. 
 
 [View on Docker Hub](https://hub.docker.com/r/dhet/debezium-connect)
 
@@ -41,7 +40,7 @@ Additionally, the connector's name can be specified via `CONNECTOR_NAME` env var
 ## How it works
 Setting up a Kafka connector involves sending an HTTP request to the connector's REST API which is often done as a manual step. The API takes the config and stores it in a log-compacted Kafka topic. Connectors are therefore inherently stateful and their deployment is a pain to automate.
 
-This image tries to alleviate this by making the connector configurable through environment variables. When the container starts it builds a config file from the specified environment variables and PUTs it to the API. This is an idempotent operation: the first request will set up a new connector, and all subsequent requests will overwrite the configuration. As a result, starting the container several times with the same configuration will always have the same effect.
+This image tries to alleviate this by making the connector configurable through environment variables. When the container starts it builds a config file from the specified environment variables and PUTs it to the API. This is an idempotent operation: the first request will set up a new connector, and all subsequent requests will overwrite the existing configuration. As a result, starting the container several times with the same configuration will always have the same effect.
 
 > ⚠️ The image is not capable of deleting existing configurations so a manual cleanup via [HTTP DELETE](https://docs.confluent.io/current/connect/references/restapi.html#delete--connectors-(string-name)-) is necessary in case Debezium is not needed anymore. 
 
