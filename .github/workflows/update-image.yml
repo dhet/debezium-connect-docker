@@ -11,12 +11,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Scan Docker Repository
-        uses: dhet/docker-repo-scan-action@master
+        uses: dhet/scan-docker-tags-action@v1.0
         with:
           image: debezium/connect
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
           max-age-minutes: 15
+          tag-regex: \\d+\\.\\d+$
         id: scan
       - name: Build + Deploy
-        run: "./build_and_deploy.sh ${{ steps.scan.outputs.tags }}"
+        run: > 
+          echo "${{ steps.scan.outputs.tags }}" 
+          | sed "s/,/ /g" 
+          | USER=${{ secrets.DOCKER_HUB_USER }} PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }} 
+            xargs ./build_and_deploy.sh 
