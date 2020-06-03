@@ -1,7 +1,7 @@
 name: Update Image
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 * * * *'
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
           image: debezium/connect
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          max-age-minutes: 15
+          max-age-minutes: 61
           tag-regex: \\d+\\.\\d+$
         id: scan
       - name: Build + Deploy
