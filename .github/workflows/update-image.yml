@@ -17,7 +17,6 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
           max-age-minutes: 61
-          tag-regex: \\d+\\.\\d+$
         id: scan
       - name: Build + Deploy
         run: > 
