@@ -1,4 +1,6 @@
-FROM debezium/connect:latest
+ARG BASE_TAG=latest
+
+FROM debezium/connect:${BASE_TAG}
 
 ENV CONNECTOR_NAME=debezium
 ENV ENV_PREFIX=DEBEZIUM_CONFIG_
