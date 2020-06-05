@@ -2,7 +2,7 @@
 
 initialize() {
   echo "===> Building connector config from env vars ..."
-  python /setup/build_config.py
+  python /setup/build_config.py | python -m json.tool > connector_config.json
 
   echo "===> Uploading config to connector '${CONNECTOR_NAME}':"
   sed -e 's/\(.*password.*"\).*\("\)/\1*****\2/g' connector_config.json
